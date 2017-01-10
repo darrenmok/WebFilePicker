@@ -8,8 +8,9 @@
 <h1>File Uploader</h1>
 
 <div id="formDiv">
+    <h2>Upload any JPEG images only</h2>
     <form action="/upload/" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" , id="file">
+        <input type="file" name="file" accept="image/jpeg" id="file">
         <input type="submit" name="upload" value="Upload" ac>
     </form>
 </div>

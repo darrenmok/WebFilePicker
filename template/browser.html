@@ -9,7 +9,7 @@
 <div id="fileList">
     <ul>
             {{ range .FileNames }}
-                <li>{{.}}</li>
+                <li><a href="/display/{{.}}">{{.}}</a></li>
             {{ end }}
     </ul>
 
