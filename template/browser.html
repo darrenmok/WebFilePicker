@@ -5,12 +5,14 @@
     <title>Uploaded file browser</title>
 </head>
 <body>
-
+<div id="uploadLink">
+    <a href="/view/">Upload Images</a>
+</div>
 <div id="fileList">
     <ul>
-            {{ range .FileNames }}
-                <li><a href="/display/{{.}}">{{.}}</a></li>
-            {{ end }}
+        {{ range .FileNames }}
+        <li><a href="/display/{{.}}">{{.}}</a></li>
+        {{ end }}
     </ul>
 
 </div>

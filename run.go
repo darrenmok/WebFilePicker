@@ -58,8 +58,15 @@ func browserHandler(w http.ResponseWriter, r *http.Request) {
 
 // handler to handle file upload
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("Enter upload handler")
+	r.ParseMultipartForm(32 << 20)
 	fileUpload, fileHeader, err := r.FormFile("file")
+	if err != nil {
+		log.Println("FormFile error")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer fileUpload.Close()
+	log.Println("Uploading file " + fileHeader.Filename)
 
 	buff := make([]byte, 512)
 	_, err = fileUpload.Read(buff)
@@ -68,7 +75,6 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	defer fileUpload.Close()
 
 	// make things simpler by restricting to JPEG files only
 	contentType := http.DetectContentType(buff)
@@ -79,12 +85,8 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err != nil {
-		log.Println("FormFile error")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	log.Println("Uploading file " + fileHeader.Filename)
+	// need to reset read pointer, causing the decode error
+	fileUpload.Seek(0, 0)
 
 	fileTemp, err := os.Create("uploaded" + string(filepath.Separator) + fileHeader.Filename)
 	if err != nil {
@@ -106,7 +108,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 
-// TODO: jpeg decode not working
+// display handler to display images
 func displayHandler(w http.ResponseWriter, r *http.Request) {
 	var validPath = regexp.MustCompile("^/(display)/(.[^/]+)$")
 	m := validPath.FindStringSubmatch(r.URL.Path)
@@ -122,6 +124,7 @@ func displayHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	defer file.Close()
 
 	img, err := jpeg.Decode(file)
 	if err != nil {
@@ -129,7 +132,6 @@ func displayHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	defer file.Close()
 
 	buf := new(bytes.Buffer)
 
