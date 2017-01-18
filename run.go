@@ -58,7 +58,6 @@ func browserHandler(w http.ResponseWriter, r *http.Request) {
 
 // handler to handle file upload
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
-	r.ParseMultipartForm(32 << 20)
 	fileUpload, fileHeader, err := r.FormFile("file")
 	if err != nil {
 		log.Println("FormFile error")
@@ -85,7 +84,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// need to reset read pointer, causing the decode error
+	// need to reset read pointer, else will cause the uploaded file to be corrupted.
 	fileUpload.Seek(0, 0)
 
 	fileTemp, err := os.Create("uploaded" + string(filepath.Separator) + fileHeader.Filename)
